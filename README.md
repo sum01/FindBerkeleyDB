@@ -1,7 +1,6 @@
 # FindBerkeleyDB.cmake
 
-This module finds [Berkeley DB](http://www.oracle.com/technetwork/database/database-technologies/berkeleydb/overview/index.html),\
-then outputs the paths of the include & libs folders into public vars.
+This module finds [Berkeley DB](http://www.oracle.com/technetwork/database/database-technologies/berkeleydb/overview/index.html), then outputs the paths of the include & libs folders into public vars.
 
 **Note:** Only tested on v5 & v6 of Berkeley DB.
 
@@ -16,8 +15,7 @@ I would recommend doing this so that you can update the module under version con
 
 ## In CmakeLists.txt
 
-Put `list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules/FindBerkeleyDB")` before using the functionality\
-(making sure to change the path based on where you placed it).  
+Put `list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules/FindBerkeleyDB")` before using the functionality (making sure to change the path based on where you placed it).  
 This allows for `find_package(BerkeleyDB)` to be called once the path is appended.
 
 `find_package(BerkeleyDB "5.23.0")` declares the `BERKELEYDB_INCLUDE_DIRS` & `BERKELEYDB_LIBRARIES` variables to be used.
