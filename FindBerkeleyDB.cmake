@@ -1,21 +1,7 @@
-# FindBerkeleyDB.cmake - version 2.0.3
+# FindBerkeleyDB.cmake - version 2.1.0
 # Author: sum01 <sum01@protonmail.com>
 # Git: https://github.com/sum01/FindBerkeleyDB
-#
-# This module finds the BerkeleyDB includes and libraries ("db" "db_cxx" "db_stl" "db_sql"). Minimum 1 library found or it fails.
-#
-# Output variables to be used in CMakeLists.txt
-# ^^^^^^^^^^^
-# BERKELEYDB_INCLUDE_DIRS
-# BERKELEYDB_LIBRARIES
-# BERKELEYDB_VERSION
-# BERKELEYDB_MAJOR_VERSION
-# BERKELEYDB_MINOR_VERSION
-# BERKELEYDB_PATCH_VERSION
-#
-# Optional user-passable values to help find Berkeley DB
-# ^^^^^^^^^^^^^^^^^^^^
-# BERKELEYDB_ROOT
+# Read the README.md for the full info.
 
 # NOTE: If Berkeley DB ever gets a Pkg-config ".pc" file, add pkg_check_modules() here
 
@@ -86,41 +72,56 @@ string(REGEX REPLACE ".*DB_VERSION_PATCH	([0-9]+(NC)?).*" "\\1" BERKELEYDB_PATCH
 # The actual returned/output version variable (the others can be used if needed)
 set(BERKELEYDB_VERSION "${BERKELEYDB_MAJOR_VERSION}.${BERKELEYDB_MINOR_VERSION}.${BERKELEYDB_PATCH_VERSION}")
 
-foreach(_TARGET_BERKELEYDB_LIB "db" "db_cxx" "db_sql" "db_stl")
-  # Sets the various libnames for the variable used in find_library.
+# True/false if the found BerkeleyDB is non-crypto
+IF(BERKELEYDB_PATCH_VERSION MATCHES "[0-9]+(NC)")
+	set(BERKELEYDB_IS_NC true)
+ELSE()
+	set(BERKELEYDB_IS_NC false)
+ENDIF()
+
+# Finds the target library for berkeley db, since they all follow the same naming conventions
+macro(findpackage_berkeleydb_get_lib _BERKELEYDB_OUTPUT_VARNAME _TARGET_BERKELEYDB_LIB)
   # Different systems sometimes have a version in the lib name...
   # and some have a dash or underscore before the versions.
   # CMake recommends to put unversioned names before versioned names
-  list(APPEND _BERKELEYDB_LIBNAMES
-    "${_TARGET_BERKELEYDB_LIB}"
-    "lib${_TARGET_BERKELEYDB_LIB}"
-    "lib${_TARGET_BERKELEYDB_LIB}${BERKELEYDB_MAJOR_VERSION}.${BERKELEYDB_MINOR_VERSION}"
-    "lib${_TARGET_BERKELEYDB_LIB}-${BERKELEYDB_MAJOR_VERSION}.${BERKELEYDB_MINOR_VERSION}"
-    "lib${_TARGET_BERKELEYDB_LIB}_${BERKELEYDB_MAJOR_VERSION}.${BERKELEYDB_MINOR_VERSION}"
-    "lib${_TARGET_BERKELEYDB_LIB}${BERKELEYDB_MAJOR_VERSION}${BERKELEYDB_MINOR_VERSION}"
-    "lib${_TARGET_BERKELEYDB_LIB}-${BERKELEYDB_MAJOR_VERSION}${BERKELEYDB_MINOR_VERSION}"
-    "lib${_TARGET_BERKELEYDB_LIB}_${BERKELEYDB_MAJOR_VERSION}${BERKELEYDB_MINOR_VERSION}"
-    "lib${_TARGET_BERKELEYDB_LIB}${BERKELEYDB_MAJOR_VERSION}"
-    "lib${_TARGET_BERKELEYDB_LIB}-${BERKELEYDB_MAJOR_VERSION}"
-    "lib${_TARGET_BERKELEYDB_LIB}_${BERKELEYDB_MAJOR_VERSION}"
-  )
-
-  find_library(_BERKELEYDB_LIB
-    NAMES ${_BERKELEYDB_LIBNAMES}
+  find_library(${_BERKELEYDB_OUTPUT_VARNAME}
+    NAMES
+			"${_TARGET_BERKELEYDB_LIB}"
+			"lib${_TARGET_BERKELEYDB_LIB}"
+			"lib${_TARGET_BERKELEYDB_LIB}${BERKELEYDB_MAJOR_VERSION}.${BERKELEYDB_MINOR_VERSION}"
+			"lib${_TARGET_BERKELEYDB_LIB}-${BERKELEYDB_MAJOR_VERSION}.${BERKELEYDB_MINOR_VERSION}"
+			"lib${_TARGET_BERKELEYDB_LIB}_${BERKELEYDB_MAJOR_VERSION}.${BERKELEYDB_MINOR_VERSION}"
+			"lib${_TARGET_BERKELEYDB_LIB}${BERKELEYDB_MAJOR_VERSION}${BERKELEYDB_MINOR_VERSION}"
+			"lib${_TARGET_BERKELEYDB_LIB}-${BERKELEYDB_MAJOR_VERSION}${BERKELEYDB_MINOR_VERSION}"
+			"lib${_TARGET_BERKELEYDB_LIB}_${BERKELEYDB_MAJOR_VERSION}${BERKELEYDB_MINOR_VERSION}"
+			"lib${_TARGET_BERKELEYDB_LIB}${BERKELEYDB_MAJOR_VERSION}"
+			"lib${_TARGET_BERKELEYDB_LIB}-${BERKELEYDB_MAJOR_VERSION}"
+			"lib${_TARGET_BERKELEYDB_LIB}_${BERKELEYDB_MAJOR_VERSION}"
     HINTS ${_BERKELEYDB_HINTS}
     PATH_SUFFIXES "lib" "lib64" "libs" "libs64"
     PATHS ${_BERKELEYDB_PATHS}
   )
-
-  # If anything is found, append to BERKELEYDB_LIBRARIES
-  IF(_BERKELEYDB_LIB)
-    list(APPEND BERKELEYDB_LIBRARIES "${_BERKELEYDB_LIB}")
-    # The library seems to get cached instead of only set in scope, so we unset the CACHE
-    unset(_BERKELEYDB_LIB CACHE)
+  # If the library was found, add it to our list of libraries
+  IF(${_BERKELEYDB_OUTPUT_VARNAME})
+	  # If found, append to our libraries variable
+		# The ${{}} is because the first expands to target the real variable, the second expands the variable's contents...
+		# and the real variable's contents is the path to the lib. Thus, it appends the path of the lib to BERKELEYDB_LIBRARIES.
+		list(APPEND BERKELEYDB_LIBRARIES "${${_BERKELEYDB_OUTPUT_VARNAME}}")
+	ELSE()
+		# If not found, set to false for the user to easily check
+		set(${_BERKELEYDB_OUTPUT_VARNAME} false)
   ENDIF()
-  # Clear out leftover names before setting them
-  unset(_BERKELEYDB_LIBNAMES)
-endforeach()
+	# Only show in the GUI if they click "advanced". Does nothing when using the CLI.
+	mark_as_advanced(FORCE ${_BERKELEYDB_OUTPUT_VARNAME})
+endmacro()
+
+# Find and set the variables (if in COMPONENTS) to the paths of the libraries
+findpackage_berkeleydb_get_lib(BERKELEYDB_LIBDB "db")
+# Windows doesn't have a db_cxx lib, but instead compiles the cxx code into the "db" lib
+findpackage_berkeleydb_get_lib(BERKELEYDB_LIBDB_CXX "db_cxx")
+# I don't think Linux/Unix gets an SQL lib...
+findpackage_berkeleydb_get_lib(BERKELEYDB_LIBDB_SQL "db_sql")
+findpackage_berkeleydb_get_lib(BERKELEYDB_LIBDB_STL "db_stl")
 
 # Needed for find_package_handle_standard_args()
 include(FindPackageHandleStandardArgs)
@@ -131,21 +132,15 @@ find_package_handle_standard_args(BerkeleyDB
   VERSION_VAR BERKELEYDB_VERSION
 )
 
-# This loops through each found library and shows them in a more readable format.
-# Get the list length
-list(LENGTH BERKELEYDB_LIBRARIES _BDB_LENGTH)
-IF(_BDB_LENGTH GREATER 0)
-  # Minus 1 on index length to avoid out-of-bounds
-  math(EXPR _BDB_LENGTH "${_BDB_LENGTH}-1")
-ENDIF()
-# Pre-loop message
-message(STATUS "Found the following Berkeley DB libraries:")
-# Loop with a range of the list length
-foreach(_loopcount RANGE 0 ${_BDB_LENGTH})
-  # Get the current index item into a var
-  list(GET BERKELEYDB_LIBRARIES ${_loopcount} _BDB_INDEX_ITEM)
-  # Gets basename of current index item
-  get_filename_component(_BDB_INDEX_ITEM_BASENAME "${_BDB_INDEX_ITEM}" NAME)
-  # Output library basename, and path without library name, of index item
-  message(STATUS "  ${_BDB_INDEX_ITEM_BASENAME}")
-endforeach()
+# Only show the includes path and libraries in the GUI if they click "advanced".
+# Does nothing when using the CLI
+mark_as_advanced(FORCE
+	BERKELEYDB_INCLUDE_DIRS
+	BERKELEYDB_LIBRARIES
+)
+
+# A message that tells the user what includes/libs were found, and obeys the QUIET command.
+find_package_message(BerkeleyDB
+	"Found BerkeleyDB libraries: ${BERKELEYDB_LIBRARIES}"
+	"[${BERKELEYDB_LIBRARIES}[${BERKELEYDB_INCLUDE_DIRS}]]"
+)
