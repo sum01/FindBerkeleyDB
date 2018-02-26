@@ -1,4 +1,4 @@
-# FindBerkeleyDB.cmake - version 2.1.0
+# FindBerkeleyDB.cmake - version 2.1.1
 # Author: sum01 <sum01@protonmail.com>
 # Git: https://github.com/sum01/FindBerkeleyDB
 # Read the README.md for the full info.
@@ -79,6 +79,8 @@ ELSE()
 	set(BERKELEYDB_IS_NC false)
 ENDIF()
 
+mark_as_advanced(FORCE BERKELEYDB_IS_NC)
+
 # Finds the target library for berkeley db, since they all follow the same naming conventions
 macro(findpackage_berkeleydb_get_lib _BERKELEYDB_OUTPUT_VARNAME _TARGET_BERKELEYDB_LIB)
   # Different systems sometimes have a version in the lib name...
@@ -107,9 +109,6 @@ macro(findpackage_berkeleydb_get_lib _BERKELEYDB_OUTPUT_VARNAME _TARGET_BERKELEY
 		# The ${{}} is because the first expands to target the real variable, the second expands the variable's contents...
 		# and the real variable's contents is the path to the lib. Thus, it appends the path of the lib to BERKELEYDB_LIBRARIES.
 		list(APPEND BERKELEYDB_LIBRARIES "${${_BERKELEYDB_OUTPUT_VARNAME}}")
-	ELSE()
-		# If not found, set to false for the user to easily check
-		set(${_BERKELEYDB_OUTPUT_VARNAME} false)
   ENDIF()
 	# Only show in the GUI if they click "advanced". Does nothing when using the CLI.
 	mark_as_advanced(FORCE ${_BERKELEYDB_OUTPUT_VARNAME})
