@@ -1,0 +1,14 @@
+language: cpp
+os: linux
+compiler: gcc
+before_install:
+  - sudo apt-get -qq update
+  - sudo apt-get install -y libdb-dev libdb++-dev
+script:
+  - mkdir -p "$TRAVIS_BUILD_DIR/test/build" && cd "$TRAVIS_BUILD_DIR/test/build"
+  - cmake -DCMAKE_BUILD_TYPE=Debug ..
+  - cmake --build .
+  - ctest
+after_failure:
+  - if [[ -e "$TRAVIS_BUILD_DIR/test/build/Testing/Temporary/LastTest.log" ]]; then cat "$TRAVIS_BUILD_DIR/test/build/Testing/Temporary/LastTest.log"; fi
+  - if [[ -e "$TRAVIS_BUILD_DIR/test/build/CMakeFiles/CMakeError.log" ]]; then cat "$TRAVIS_BUILD_DIR/test/build/CMakeFiles/CMakeError.log"; fi
