@@ -1,5 +1,7 @@
 # FindBerkeleyDB.cmake
 
+[![Build Status](https://travis-ci.com/sum01/FindBerkeleyDB.svg?branch=master)](https://travis-ci.com/sum01/FindBerkeleyDB)
+
 This provides a [Cmake](https://cmake.org/) [find_packge module](https://cmake.org/cmake/help/latest/command/find_package.html) for [Berkeley DB](http://www.oracle.com/technetwork/database/database-technologies/berkeleydb/overview/index.html).
 
 Tested on v5 & v6 of Berkeley DB.
