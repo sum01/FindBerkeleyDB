@@ -1,0 +1,39 @@
+version: '{branch}-{build}'
+
+image: Visual Studio 2017
+
+configuration: Debug
+
+platform: x64
+
+clone_folder: c:\projects\findberkeleydb
+
+shallow_clone: true
+
+clone_depth: 1
+
+# Keeps Berkeley DB cached unless .appveyor.yml changes
+cache:
+  - C:\Program Files\Oracle\Berkeley DB 12cR1 6.2.32\ -> .appveyor.yml
+
+install:
+  - mkdir C:\projects\install_berkeleydb
+  - cd C:\projects\install_berkeleydb
+  - curl -sSO http://download.oracle.com/berkeley-db/db-6.2.32_64.msi
+  - msiexec.exe /i "C:\projects\install_berkeleydb\db-6.2.32_64.msi" /quiet /qn /norestart /Lwemo berkeleydb-install.log
+  - IF EXIST C:\projects\install_berkeleydb\berkeleydb-install.log (type C:\projects\install_berkeleydb\berkeleydb-install.log)
+
+before_build:
+  - mkdir "%APPVEYOR_BUILD_FOLDER%"\test\build
+  - cd "%APPVEYOR_BUILD_FOLDER%"\test\build
+  - cmake -G "Visual Studio 15 2017 Win64" -T host=x64 ..
+
+build_script:
+  - cmake --build . --config Debug
+
+test_script:
+  - ctest -C Debug
+
+on_failure:
+  - IF EXIST "%APPVEYOR_BUILD_FOLDER%"\test\build\Testing\Temporary\LastTest.log (type "%APPVEYOR_BUILD_FOLDER%"\test\build\Testing\Temporary\LastTest.log)
+  - IF EXIST "%APPVEYOR_BUILD_FOLDER%"\test\build\CMakeFiles\CMakeError.log (type "%APPVEYOR_BUILD_FOLDER%"\test\build\CMakeFiles\CMakeError.log)
