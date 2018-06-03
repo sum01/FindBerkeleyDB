@@ -1,6 +1,7 @@
 #include <db_cxx.h>
 #include <cstdint>
 #include <cstdlib>
+#include <exception>
 #include <iostream>
 
 template<typename T>
@@ -28,6 +29,9 @@ int main() {
 		err(e);
 	} catch (const std::exception &e) {
 		err(e);
+	} catch (...) {
+		std::cerr << "Unkown error thrown!" << std::endl;
+		std::exit(EXIT_FAILURE);
 	}
 	// No errors thrown, success
 	std::exit(EXIT_SUCCESS);
