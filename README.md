@@ -34,3 +34,12 @@ All libraries are searched for, but as long as one is found the build will pass.
 | `BerkeleyDB_Cxx_LIBRARY`   | The path to the `db_cxx` library, or `-NOTFOUND` |
 | `BerkeleyDB_Stl_LIBRARY`   | The path to the `db_stl` library, or `-NOTFOUND` |
 | `BerkeleyDB_Sql_LIBRARY`   | The path to the `db_sql` library, or `-NOTFOUND` |
+
+## Notes
+
+Use `BerkeleyDB_ROOT_DIR` to help find the library if it's not automatically found.\
+Example: `cmake -DBerkeleyDB_ROOT_DIR="C:/some/weird/path/Berkeley DB" ..`
+
+On certain operating systems, different libraries may or may not exist.\
+It is best to not use the `xxx_LIBRARY` variables directly...\
+Instead, use the imported target `Oracle::BerkeleyDB` or the `BerkeleyDB_LIBRARIES` variable.
