@@ -1,4 +1,5 @@
-cmake_minimum_required(VERSION 3.1.0 FATAL_ERROR)
+# 3.8 for cxx_std_11
+cmake_minimum_required(VERSION 3.8.0 FATAL_ERROR)
 project(findbdb-test LANGUAGES CXX)
 
 # The test exe that runs an open/close of a Berkeley DB
