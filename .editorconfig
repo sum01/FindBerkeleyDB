@@ -16,5 +16,6 @@ trim_trailing_whitespace = true
 [*.md]
 trim_trailing_whitespace = false
 
-[.travis.yml]
+# Yaml requires space indentation
+[*.yml]
 indent_style = space
