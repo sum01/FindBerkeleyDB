@@ -1,14 +1,20 @@
 language: cpp
-os: linux
+os:
+  - linux
+  - osx
+# Not testing Clang is probably fine...
 compiler: gcc
+# Get Berkeley DB dependency
 before_install:
-  - sudo apt-get -qq update
-  - sudo apt-get install -y libdb-dev libdb++-dev
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get -qq update; sudo apt-get install -y libdb-dev libdb++-dev; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update; brew list berkeley-db &>/dev/null || brew install berkeley-db; fi
+# Run Cmake, compile, and test
 script:
   - mkdir -p "$TRAVIS_BUILD_DIR/test/build" && cd "$TRAVIS_BUILD_DIR/test/build"
   - cmake -DCMAKE_BUILD_TYPE=Debug ..
   - cmake --build .
   - ctest
+# Echos failure logs into TravisCI so we can read them online
 after_failure:
   - if [[ -e "$TRAVIS_BUILD_DIR/test/build/Testing/Temporary/LastTest.log" ]]; then cat "$TRAVIS_BUILD_DIR/test/build/Testing/Temporary/LastTest.log"; fi
   - if [[ -e "$TRAVIS_BUILD_DIR/test/build/CMakeFiles/CMakeError.log" ]]; then cat "$TRAVIS_BUILD_DIR/test/build/CMakeFiles/CMakeError.log"; fi
